@@ -467,6 +467,18 @@ into a venv from before that change - the fix is on both scripts now.
   doesn't own any of its own. Quick capture and the Today's Focus
   checkbox don't add new routes - they call the existing Notes/To Do
   endpoints directly.
+- `tools/import_notion_studio_logs.py` - one-off migration: reads a
+  Notion database exported as HTML and appends its rows to Studio Logs.
+  Reads the HTML export rather than the CSV one because Notion writes the
+  date as `<time datetime="2026-03-27">` there, while the CSV keeps only
+  the display text ("March 27, 2026") that would have to be re-parsed
+  against a locale. Columns are matched by their header text, not their
+  position, so a differently-ordered export still lands correctly. It is
+  safe to re-run - a row whose URL is already in the table is skipped
+  rather than duplicated (URL, not title: two studios can share a name,
+  and one export had two called "Icon") - and it copies the database to a
+  `.bak` beside itself before the first write. `--dry-run` reports without
+  writing. Nothing in the app imports this; it exists to be run by hand.
 - `frontend/index.html` - the whole page shell (every tool's markup
   lives here, shown/hidden by `nav.js`).
 - `frontend/static/css/app.css` - design tokens + all component styles.
@@ -578,6 +590,16 @@ executable), shared across every tool:
   files share a hash, and tagging one silently tagged every copy, across
   Invoices and NF's both. Renames are followed at scan time instead, and
   only when unambiguous: one file gone, one file arrived, same hash.
+
+**Type and Status are a closed pair each, and an importer has to respect
+that.** `gatherer_entries.type` and `.status` are free text in SQLite but
+two-option `<select>`s in the UI, so a third value is not stored-but-unshown
+- it renders as the *first* option while the database says something else,
+and the first edit to that row writes the displayed value back, losing the
+original silently. The Notion import folds on the way in for that reason
+(Agency and Store/Company to Company; Studio/Individual and VFX House to
+Studio) and prints every row it changed. Anything else writing these columns
+needs the same discipline.
 
 ## Roadmap / not built yet
 
