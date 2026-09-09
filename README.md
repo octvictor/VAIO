@@ -837,10 +837,12 @@ inside "Back up now" instead of beside it. Same family as the other traps
 here: a shared class carrying an assumption from where it was born.
 
 The wider rule for putting a `.btn-text` next to a `.btn`: give it the
-`.btn`'s padding so they share a top and bottom edge, keep the border
-transparent so the hierarchy stays, and use a **tighter** gap than you would
-between two bordered buttons - the borderless one's own padding adds to the
-space you actually see, so 8px here reads like 14px does there.
+`.btn`'s whole box - same padding, radius, font size and border - and leave
+out only the fill. The matching geometry is what puts the two on one top and
+bottom edge; the empty background is what keeps the primary reading as the
+primary, so the pair needs no size or weight difference to say which is
+which. Hover follows `.btn` and moves `border-color` only - a fill appearing
+on hover would undo the one thing separating them.
 
 **One icon size, one delete icon.** Every small icon button in the app is
 a 16px Lucide glyph centred in a 24px box: `.row-delete-btn`,

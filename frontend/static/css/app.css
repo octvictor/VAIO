@@ -3216,7 +3216,7 @@ input.kanban-col-title-input:focus {
 .backup-actions {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
 
 /* Both buttons size to their own text here. .btn-text is width: 100% and
@@ -3232,22 +3232,25 @@ input.kanban-col-title-input:focus {
     white-space: nowrap;
 }
 
-/* Matching the primary button's box, not just its text: .btn-text is
-   built for a full-width toggle under a list, where nothing sits beside
-   it to align with. Dropped next to a real button its 24px box floated
-   inside the button's 37px one, centred against it and touching no edge
-   it shared - which read as a stray label rather than the second control
-   it is. Same padding gives them one top and bottom edge; the 8px gap is
-   deliberately tighter than a gap between two bordered buttons, because
-   this one's own padding adds to the space you actually see. */
+/* An outline button: .btn's box exactly - same padding, radius, font size
+   and border - with only the fill left out. .btn-text is built for a
+   full-width toggle under a list, where nothing sits beside it to align
+   with, so next to a real button its own box floated inside the button's,
+   centred against it and touching no edge it shared. Giving it the same
+   geometry is what puts the two on one top and bottom edge; dropping only
+   the background is what keeps "Back up now" reading as the primary of
+   the pair. */
 .backup-actions > .btn-text {
-    padding: 9px 10px;
+    padding: 9px 16px;
     font-size: 13.5px;
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
 }
 
+/* Same hover as .btn, which sets border-color only - the fill staying
+   empty on hover is the whole point of the outline treatment. */
 .backup-actions > .btn-text:hover {
-    background: var(--panel);
+    border-color: var(--text-muted);
 }
 
 /* Collapsed until it has something to say. It used to reserve a line at
