@@ -479,6 +479,13 @@ into a venv from before that change - the fix is on both scripts now.
   rows in it. The database is auto-detected the same way, and listed by
   content ("74 studio logs, 4 projects") rather than by path, since that
   is what actually distinguishes the app you use from the dev checkout.
+  The list always offers "somewhere else, I'll type the path", including
+  when there is only one hit - auto-picking a lone candidate is what sent
+  the first real import into the dev checkout rather than the downloaded
+  .exe, which the search never reaches when it lives on another drive. A
+  typed path may be the `vaio.db`, its `data` folder, or the folder
+  `VAIO.exe` sits in; a folder holding the .exe but no data folder says to
+  run the app once first, since that is when the database gets created.
   Nothing is written until you confirm.
   Reads the HTML export rather than the CSV one because Notion writes the
   date as `<time datetime="2026-03-27">` there, while the CSV keeps only
