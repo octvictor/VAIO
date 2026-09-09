@@ -235,29 +235,71 @@ def _describe(path: Path) -> str:
         return "not readable as a VAIO database"
 
 
-def resolve_db(explicit: Path | None) -> Path:
+WHERE_IS_IT = """
+  The database sits in a "data" folder beside VAIO.exe. To find it:
+  open VAIO, go to Settings -> Backup -> Open backups folder. The window
+  that opens is that data folder's "backups" - go up one level and
+  vaio.db is right there. Then drag vaio.db onto this window."""
+
+
+def as_database(raw: str) -> Path | None:
+    """Accept whatever the person actually has to hand: the vaio.db file,
+    the data folder holding it, or the folder VAIO.exe sits in. Requiring
+    the exact file is how you get someone pointing at the wrong database
+    because it was the one they could find."""
+    path = Path(_clean(raw))
+    if not path.exists():
+        print(f"Nothing at {path}")
+        return None
+    candidates = [path] if path.is_file() else [path / "vaio.db", path / "data" / "vaio.db"]
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate
+    # A folder with the .exe but no database means the app has never been
+    # run there - it creates data/vaio.db on first launch, so there is
+    # genuinely nothing to import into yet.
+    if any(path.glob("VAIO.exe")):
+        print(f"{path} has VAIO.exe but no data folder yet.")
+        print("Run VAIO.exe once so it creates its database, close it, then try again.")
+        return None
+    print(f"No vaio.db in {path}")
+    return None
+
+
+def ask_for_db() -> Path:
+    print(WHERE_IS_IT)
+    while True:
+        answer = input("\n  Path to vaio.db (or its folder): ")
+        found = as_database(answer)
+        if found:
+            return found
+        print("  Try again, or close this window to stop.")
+
+
+def resolve_db(explicit: str | None) -> Path:
     if explicit is not None:
-        if not explicit.exists():
-            raise SystemExit(f"no database at {explicit}")
-        return explicit
+        found = as_database(explicit)
+        if not found:
+            raise SystemExit("--db did not point at a VAIO database")
+        return found
 
     print("Looking for your VAIO database...")
     found = find_databases()
     if not found:
         print("Could not find one automatically.")
-        print(r'It sits in the "data" folder next to VAIO.exe, e.g. C:\VAIO\data\vaio.db')
-        while True:
-            typed = Path(_clean(input("Path to vaio.db: ")))
-            if typed.exists():
-                return typed
-            print(f"No file at {typed} - try again, or close this window to stop.")
-    if len(found) == 1:
-        print(f"Found one: {found[0]}  ({_describe(found[0])})")
-        return found[0]
-    print("Found more than one - pick the app you actually use:")
+        return ask_for_db()
+
+    # Always offer the way out, even when there is only one hit. Auto-picking
+    # a lone candidate is what silently sent an import into the dev checkout
+    # instead of the downloaded .exe, which is not searched for at all when
+    # it lives outside the home folder - on another drive, say.
+    print("Pick the one you want to import into:")
     for i, path in enumerate(found, 1):
-        print(f"  {i}. {path}  ({_describe(path)})")
-    return found[_choose(len(found))]
+        print(f"  {i}. {path}\n     ({_describe(path)})")
+    other = len(found) + 1
+    print(f"  {other}. Somewhere else - I'll type the path")
+    choice = _choose(other)
+    return ask_for_db() if choice == other - 1 else found[choice]
 
 
 def main() -> int:
@@ -286,7 +328,7 @@ def main() -> int:
     if not records:
         raise SystemExit(f"{export.name}: the table has no rows")
 
-    db_path = resolve_db(Path(_clean(args.db)) if args.db else None)
+    db_path = resolve_db(args.db)
 
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
