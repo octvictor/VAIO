@@ -737,6 +737,23 @@ section that many pixels tall - an 18px sliver under a closed group. The
 item does the clipping (`overflow: hidden; min-height: 0`) and a child
 inside it carries the padding. `#settings-docs-fields` is that child.
 
+The corollary is that **every settings group needs its own wrapper**, and a
+group written without one gets no inset at all rather than a default. Backup
+shipped that way: its children sat flush against the group's border - the
+button touching the left edge, the restore note touching the bottom one -
+and 14px left of the caret in its own header. `.backup-fields` is now its
+wrapper, on the same `2px 14px 16px` as Documents, so the two groups line
+their content up with each other. The wrapper stacks with one `gap` rather
+than a margin per block, which is what lets the status line disappear when
+empty (`.backup-status:empty { display: none }`) without leaving a hole -
+a `display: none` flex child takes its gap with it.
+
+That status line used to reserve a blank row at all times so the list below
+would not shift when a message arrived. It was not worth it: the message
+always arrives together with a new row in that same list, so the shift
+happened anyway and the reservation only bought a permanent 28px gap under
+the buttons.
+
 **Two kinds, one template.** Invoices and NFs are the same browser pointed
 at two folders, so the page renders one section template twice from the
 kind list the server sends, and all view state (`docView`) is keyed by
@@ -808,6 +825,22 @@ with no chip left on screen to explain why.
 long list here uses `applyRowFit`; two stacked sections have no single
 "what fits" answer, and a list whose length changes when you resize the
 window is worse than one you can predict.
+
+**`.btn-text` needs the full `border` shorthand, not just `border-color`.**
+It set `border-color: transparent` and nothing else, so a `<button>` kept the
+UA default `2px outset`. Invisible while it is transparent, and harmless
+while `.btn-text` is what it was built to be - a full-width toggle standing
+alone under a list - but it makes the box 2px taller and 4px wider than a
+`.btn` with identical padding, so the two can never share an edge when they
+sit in a row together. That is what left "Open backups folder" floating
+inside "Back up now" instead of beside it. Same family as the other traps
+here: a shared class carrying an assumption from where it was born.
+
+The wider rule for putting a `.btn-text` next to a `.btn`: give it the
+`.btn`'s padding so they share a top and bottom edge, keep the border
+transparent so the hierarchy stays, and use a **tighter** gap than you would
+between two bordered buttons - the borderless one's own padding adds to the
+space you actually see, so 8px here reads like 14px does there.
 
 **One icon size, one delete icon.** Every small icon button in the app is
 a 16px Lucide glyph centred in a 24px box: `.row-delete-btn`,

@@ -945,7 +945,13 @@ input[type="url"]:focus {
    visually compete with a page's primary action button. */
 .btn-text {
     background: transparent;
-    border-color: transparent;
+    /* The full shorthand, not just border-color. Setting only the colour
+       leaves a <button> on the UA default 2px outset, which is invisible
+       while it is transparent and harmless while this is a full-width
+       toggle standing alone - but it makes the box 2px taller and 4px
+       wider than a .btn with identical padding, so the two can never
+       share an edge when they sit in a row together. */
+    border: 1px solid transparent;
     color: var(--text-muted);
     width: 100%;
     text-align: center;
@@ -3185,11 +3191,32 @@ input.kanban-col-title-input:focus {
 
 /* ---------- Settings: Backup ---------- */
 
+/* Every child of this group used to sit flush against the group's own
+   border - the button touching the left edge, the restore note touching
+   the bottom one - because .settings-group-inner carries no padding and
+   nothing here supplied its own. The inset also lines the body up with
+   the caret in the group's header (14px in from the same edge), which is
+   the alignment Documents already has via #settings-docs-fields.
+
+   The padding cannot go on .settings-group-inner itself: that is the grid
+   item doing the disclosure clipping, and an item's padding sits inside
+   its own overflow:hidden, so it would leave the collapsed group an 18px
+   sliver tall. Hence a wrapper, same as Documents.
+
+   The vertical rhythm is one `gap` rather than a margin per block, so
+   hiding a block (the empty status below) takes its spacing with it
+   instead of leaving a hole. */
+.backup-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 2px 14px 16px;
+}
+
 .backup-actions {
     display: flex;
     align-items: center;
-    gap: 14px;
-    margin-bottom: 12px;
+    gap: 8px;
 }
 
 /* Both buttons size to their own text here. .btn-text is width: 100% and
@@ -3205,10 +3232,35 @@ input.kanban-col-title-input:focus {
     white-space: nowrap;
 }
 
-/* Reserves its own line even when empty, so confirming a backup does not
-   shove the list below it down a row the moment the message appears. */
+/* Matching the primary button's box, not just its text: .btn-text is
+   built for a full-width toggle under a list, where nothing sits beside
+   it to align with. Dropped next to a real button its 24px box floated
+   inside the button's 37px one, centred against it and touching no edge
+   it shared - which read as a stray label rather than the second control
+   it is. Same padding gives them one top and bottom edge; the 8px gap is
+   deliberately tighter than a gap between two bordered buttons, because
+   this one's own padding adds to the space you actually see. */
+.backup-actions > .btn-text {
+    padding: 9px 10px;
+    font-size: 13.5px;
+    border-radius: var(--radius-md);
+}
+
+.backup-actions > .btn-text:hover {
+    background: var(--panel);
+}
+
+/* Collapsed until it has something to say. It used to reserve a line at
+   all times so the list would not shift when a message arrived, but the
+   message always arrives together with a new row in that same list, so
+   the shift happened regardless - the reservation only bought a permanent
+   28px hole under the buttons. A display:none flex child takes its gap
+   with it, so the blank line leaves nothing behind. */
+.backup-status:empty {
+    display: none;
+}
+
 .backup-status {
-    min-height: 1.4em;
     overflow-wrap: anywhere;
 }
 
@@ -3219,7 +3271,6 @@ input.kanban-col-title-input:focus {
 .backup-list {
     display: flex;
     flex-direction: column;
-    margin-bottom: 12px;
 }
 
 .backup-row {
@@ -3249,10 +3300,6 @@ input.kanban-col-title-input:focus {
     font-variant-numeric: tabular-nums;
 }
 
-.backup-empty,
-.backup-restore-note {
-    margin-top: 0;
-}
 
 /* The app's one color-picker trigger, used by every tool that has a
    color to set (Calculator's row color, To Do's list color, Notes'

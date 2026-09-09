@@ -574,6 +574,13 @@
                 </button>
                 <div class="settings-group-body" id="settings-backup-body">
                     <div class="settings-group-inner">
+                        <!-- The padding lives on .backup-fields, not on
+                             .settings-group-inner: the inner is the grid item
+                             that does the clipping, and its own padding would
+                             sit inside its own overflow:hidden and leave the
+                             collapsed group a visible sliver tall. Same reason
+                             #settings-docs-fields exists in the group above. -->
+                        <div class="backup-fields">
                         <p class="settings-hint">One zip holding your database and every file you&rsquo;ve attached &mdash; projects, notes, to&#8209;dos, Studio Logs, Calculator, invoices, project documents and your payment image. Worth taking before you replace VAIO with a newer version.</p>
 
                         <div class="backup-actions">
@@ -586,6 +593,7 @@
                         <div id="settings-backup-list"></div>
 
                         <p class="settings-hint backup-restore-note">The backups sit next to the app, so they go where it goes &mdash; copy one somewhere else as well if the drive itself is what you&rsquo;re worried about. To put a backup back: close VAIO, open the zip, and copy <code>data/vaio.db</code> over the one beside the app. That&rsquo;s deliberately by hand rather than a button, since restoring replaces everything you&rsquo;ve done since.</p>
+                        </div>
                     </div>
                 </div>
             </div>
