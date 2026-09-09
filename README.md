@@ -467,8 +467,19 @@ into a venv from before that change - the fix is on both scripts now.
   doesn't own any of its own. Quick capture and the Today's Focus
   checkbox don't add new routes - they call the existing Notes/To Do
   endpoints directly.
-- `tools/import_notion_studio_logs.py` - one-off migration: reads a
-  Notion database exported as HTML and appends its rows to Studio Logs.
+- `import_studio_logs.bat` / `tools/import_notion_studio_logs.py` -
+  one-off migration: reads a Notion database exported as HTML and appends
+  its rows to Studio Logs. The `.bat` is the front door - double-click it,
+  or drag the export onto it. Unlike `run.bat` it creates no venv and
+  installs nothing, because the importer is deliberately standard-library
+  only: a one-off migration should not need a working dev setup first.
+  It takes the export as a *folder* as well as a file, since a Notion
+  export unzips to a folder of `.html` pages and picking the database out
+  of it by eye is the step most likely to go wrong - it finds the one with
+  rows in it. The database is auto-detected the same way, and listed by
+  content ("74 studio logs, 4 projects") rather than by path, since that
+  is what actually distinguishes the app you use from the dev checkout.
+  Nothing is written until you confirm.
   Reads the HTML export rather than the CSV one because Notion writes the
   date as `<time datetime="2026-03-27">` there, while the CSV keeps only
   the display text ("March 27, 2026") that would have to be re-parsed
