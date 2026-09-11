@@ -29,9 +29,29 @@ function currencySymbol() {
     return CURRENCY_SYMBOLS[activeCurrency] || "$";
 }
 
+// The prefix is absolutely positioned over the input's own padding, so
+// the padding has to clear whatever glyphs the prefix actually draws.
+// A fixed 22px was measured against "$" and left "R$" touching the first
+// digit - BRL is two characters wide, and EUR/GBP are not the same width
+// as USD either. Measuring beats a per-currency table: one rule, and a
+// new currency needs no second edit.
+//
+// A zero width means the modal is display:none (nothing measures inside
+// it), so leave the padding alone and let the modal's own open path call
+// this again once it is on screen.
+function fitDayRatePrefix() {
+    const prefix = $("day-rate-prefix");
+    const input = prefix.parentElement.querySelector("input");
+    if (!input) return;
+    const width = prefix.getBoundingClientRect().width;
+    if (!width) return;
+    input.style.paddingLeft = Math.ceil(11 + width + 5) + "px";
+}
+
 function updateCurrencyDisplay() {
     const symbol = currencySymbol();
     $("day-rate-prefix").textContent = symbol;
+    fitDayRatePrefix();
     document.querySelectorAll(".cost-prefix").forEach((el) => {
         el.textContent = symbol;
     });
@@ -478,6 +498,10 @@ async function openProjectModal(id) {
     resetSidePanel(project);
 
     $("project-modal-backdrop").style.display = "flex";
+    // After the modal is on screen, never before: the prefix measures zero
+    // wide while its ancestor is display:none, and the padding it sizes
+    // would silently keep whatever the last currency left behind.
+    fitDayRatePrefix();
     $("modal-title").focus();
 }
 

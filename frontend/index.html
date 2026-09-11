@@ -19,7 +19,14 @@
     </script>
     <link rel="stylesheet" href="/static/css/app.css">
 </head>
-<body>
+<!-- spellcheck is inherited, so switching it off here covers every field
+     in the app - including the ones built by JS, which is most of them.
+     Nothing here is prose for a spellchecker to have an opinion about:
+     the inputs hold studio names, URLs, project titles and task labels,
+     and a red underline under "Lookdev" or "BrokenEdge" is noise on every
+     one of them. Any future field that genuinely wants checking has to
+     opt back in with spellcheck="true". -->
+<body spellcheck="false">
     <div class="app-shell">
         <div class="body-row">
             <nav class="sb" id="sb">
@@ -171,7 +178,7 @@
             </section>
 
             <section id="page-gatherer" style="display:none;">
-                <h1 class="page-title">Studio Logs</h1>
+                <h1 class="page-title">Studio Logs<span class="page-title-count" id="gatherer-count"></span></h1>
 
                 <div class="panel">
                     <div class="gatherer-table-wrap">

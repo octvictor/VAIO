@@ -407,7 +407,7 @@ button, input, select, textarea {
 .kanban-add-task,
 .kanban-col-delete,
 .kanban-col-new,
-input.kanban-col-title-input,
+textarea.kanban-col-title-input,
 .modal-close,
 .modal-description-input,
 .modal-side-tab,
@@ -3041,11 +3041,23 @@ table.project-table tbody tr:hover td {
     padding: 10px;
 }
 
+/* flex-start, not center: once the title can wrap to two lines, centring
+   pushes the colour dot and the count to the middle of a tall title and
+   away from the line they label. */
 .kanban-col-head {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 8px;
     margin-bottom: 10px;
+}
+
+/* The dot and the count are single-line controls beside a box that may be
+   two lines tall, so they take the title's own first-line height to sit on
+   its baseline rather than at the very top of it. */
+.kanban-col-head > .color-dot-btn,
+.kanban-col-head > .kanban-col-count,
+.kanban-col-head > .kanban-col-grip {
+    margin-top: 3px;
 }
 
 /* The column's grip, reusing .row-drag-handle's look so a Projects row, a
@@ -3076,7 +3088,7 @@ body > .drag-ghost .kanban-col-grip {
    generic input[type="text"] rule's specificity instead of losing to it -
    without this, the list title rendered with that rule's bordered-box
    look instead of sitting flush like the mockup's plain title text. */
-input.kanban-col-title-input {
+textarea.kanban-col-title-input {
     flex: 1;
     min-width: 0;
     width: auto;
@@ -3085,23 +3097,44 @@ input.kanban-col-title-input {
     background: none;
     border: 1px solid transparent;
     border-radius: var(--radius-sm);
+    font-family: inherit;
     font-size: 13.5px;
     font-weight: 700;
     letter-spacing: -0.01em;
+    line-height: 1.35;
     color: var(--text);
     padding: 4px 6px;
     margin-left: -6px;
     margin-right: -6px;
+    /* Height is set by autoGrowChecklistText, so the textarea must never
+       scroll or offer a resize grip - both would contradict a box that is
+       already exactly as tall as its text. */
+    resize: none;
+    overflow: hidden;
+    display: block;
 }
 
-input.kanban-col-title-input:hover,
-input.kanban-col-title-input:focus {
+textarea.kanban-col-title-input:hover,
+textarea.kanban-col-title-input:focus {
     background: var(--panel);
     outline: none;
 }
 
-input.kanban-col-title-input:focus {
+textarea.kanban-col-title-input:focus {
     border-color: var(--border);
+}
+
+/* A page's own count, on the same idea as a To Do column's: how much is
+   in this tool, without scrolling to the end to find out. Deliberately
+   quiet - it is a fact about the page, not a heading of its own. */
+.page-title-count {
+    margin-left: 10px;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-faint);
+    letter-spacing: 0;
+    font-variant-numeric: tabular-nums;
+    vertical-align: middle;
 }
 
 .kanban-col-count {

@@ -884,6 +884,36 @@ primary, so the pair needs no size or weight difference to say which is
 which. Hover follows `.btn` and moves `border-color` only - a fill appearing
 on hover would undo the one thing separating them.
 
+**Spellcheck is off for the whole app, from one attribute on `<body>`.**
+The attribute is inherited, so it reaches every field including the many
+built by JS - no per-input attribute to remember on the next one. Nothing
+here is prose: the fields hold studio names, URLs, project titles and task
+labels, and a red underline under "Lookdev" or "BrokenEdge" is noise on
+all of them. A field that genuinely wants checking has to opt back in with
+`spellcheck="true"`.
+
+**A heading you can edit is a `<textarea>`, not an `<input>`.** A To Do
+column's title is the case: an input can only scroll a value too long for
+its box, so a long list name was cut at the column edge at rest *and* had
+its first half hidden while being typed - exactly when you need to see it.
+A one-row textarea grown by `autoGrowChecklistText` wraps in both states.
+Two things come with that choice: the header switches to
+`align-items: flex-start` and the dot, count and grip take a 3px top
+margin, so they sit on the title's first line rather than the middle of a
+two-line one; and blur collapses whitespace, since a textarea will happily
+keep newlines out of a paste and this is a heading.
+
+**An overlaid input prefix has to be measured, not assumed.** The day
+rate's currency symbol is absolutely positioned over the input's own
+padding (so the input's left edge stays aligned with every other property
+row), which means the padding has to clear whatever the prefix actually
+draws. A fixed 22px was measured against `$` and left `R$` touching the
+first digit - BRL is two glyphs wide, and even `£` and `€` differ from
+`$`. `fitDayRatePrefix()` measures and sets it, so a new currency needs no
+second edit. It must run *after* the modal is displayed: the usual
+measures-zero-inside-`display:none` trap, which here would silently leave
+the padding at whatever the previous currency set.
+
 **One icon size, one delete icon.** Every small icon button in the app is
 a 16px Lucide glyph centred in a 24px box: `.row-delete-btn`,
 `.note-delete-btn`, `.doc-delete-btn`, `.doc-tag-delete`, `.doc-row-action`,

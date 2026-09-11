@@ -84,6 +84,20 @@ function renderGathererTable() {
         ? rendered.length
         : applyRowFit($("gatherer-body"), "tr[data-id]", { reserve: 56 });
 
+    // Same idea as a To Do column's count, on the page title: how much is
+    // in here, without having to scroll to the end to find out. Says
+    // "12 of 73" under a filter, because a bare "12" beside the title of a
+    // list you know has more in it reads as data having gone missing.
+    const countEl = $("gatherer-count");
+    if (countEl) {
+        const total = gathererEntries.length;
+        countEl.textContent = !total
+            ? ""
+            : rows.length === total
+            ? String(total)
+            : `${rows.length} of ${total}`;
+    }
+
     const expandBtn = $("gatherer-expand-btn");
     const hidden = rows.length - shown;
     if (gathererExpanded) {

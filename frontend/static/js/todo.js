@@ -49,7 +49,7 @@ function todoColumnHtml(list) {
                 <button class="color-dot-btn" data-role="color" type="button" title="List color" style="--dot-color:${list.color || "var(--border)"};">
                     <span class="color-dot"></span>
                 </button>
-                <input type="text" class="kanban-col-title-input" data-role="title" value="${escapeAttr(list.title)}" placeholder="List name">
+                <textarea class="kanban-col-title-input" data-role="title" rows="1" placeholder="List name">${escapeAttr(list.title)}</textarea>
                 <span class="kanban-col-count">${tasks.length}</span>
                 <span class="row-drag-handle kanban-col-grip" title="Drag to reorder">&#8942;</span>
             </div>
@@ -108,10 +108,26 @@ function wireTodoColumn(col) {
         });
     });
 
+    // A <textarea>, not an <input>, so a long list name wraps onto a second
+    // line instead of being cut at the column's edge - and stays wrapped
+    // while you type it, which an input cannot do at any width: it can only
+    // scroll, hiding the front of the name exactly when you are editing it.
     const titleInput = col.querySelector("[data-role='title']");
-    titleInput.addEventListener("blur", () => saveTodoListField(listId, { title: titleInput.value.trim() }));
+    autoGrowChecklistText(titleInput);
+    titleInput.addEventListener("input", () => autoGrowChecklistText(titleInput));
+    titleInput.addEventListener("blur", () => {
+        // A pasted name can carry newlines a textarea would happily keep,
+        // and this is a heading - one line of text that may wrap, not a
+        // place to hold line breaks.
+        titleInput.value = titleInput.value.replace(/\s+/g, " ").trim();
+        autoGrowChecklistText(titleInput);
+        saveTodoListField(listId, { title: titleInput.value });
+    });
     titleInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") e.target.blur();
+        if (e.key === "Enter") {
+            e.preventDefault();
+            e.target.blur();
+        }
     });
 
     col.querySelector("[data-role='delete']").addEventListener("click", async () => {
