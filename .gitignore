@@ -10,6 +10,11 @@ data/project_docs/
 data/invoice_assets/
 # A backup zip is a copy of the whole database - never commit one.
 data/backups/
+# Same reason, and easier to miss: tools/import_notion_studio_logs.py
+# copies the database to <name>.bak before its first write, and that name
+# does not match data/*.db above. It is the whole database, invoices and
+# client list included.
+*.bak
 # Written only when VAIO_DEBUG=1, to diagnose a launch that fails silently.
 vaio-launch.log
 

@@ -66,10 +66,27 @@ def main() -> int:
     branch = git("rev-parse", "--abbrev-ref", "HEAD")
     print(f"Branch: {branch}")
 
-    if git("status", "--porcelain"):
-        print("\nYou have uncommitted changes. They will NOT be in this release -")
-        print("a tag can only point at a commit, and these are not committed yet.")
-        if ask("Carry on anyway? [y/N] ").lower() not in ("y", "yes"):
+    # Naming the files matters more than the warning does: in this repo they
+    # are almost always local by-products - a .bak the importer left, a
+    # dist/ folder from a local build - and "carry on" is then obviously
+    # right. A bare "you have uncommitted changes" gives you nothing to
+    # decide with.
+    # -uall so an untracked folder lists the files inside it: "data/" says
+    # nothing, "data/vaio.db.bak" is instantly recognisable as the copy the
+    # importer left behind.
+    dirty = git("status", "--porcelain", "-uall")
+    if dirty:
+        lines = dirty.splitlines()
+        print("\nNot committed, so NOT in this release (a tag points at a commit):")
+        for line in lines[:12]:
+            state, _, name = line.partition(" ")
+            label = "new file" if line.startswith("??") else f"changed ({state.strip()})"
+            print(f"  {name.strip()}  - {label}")
+        if len(lines) > 12:
+            print(f"  ...and {len(lines) - 12} more")
+        print("\nIf that is just leftovers - a .bak, a build folder - carry on.")
+        print("If any of it is work you want released, close this and commit it first.")
+        if ask("Carry on? [y/N] ").lower() not in ("y", "yes"):
             return 0
 
     print("Fetching from GitHub...")
