@@ -467,6 +467,21 @@ into a venv from before that change - the fix is on both scripts now.
   doesn't own any of its own. Quick capture and the Today's Focus
   checkbox don't add new routes - they call the existing Notes/To Do
   endpoints directly.
+- `release.bat` / `tools/release.py` - publishes a new version:
+  double-click, confirm, done. Releasing is three git commands
+  (`pull`, `tag vX.Y`, `push origin vX.Y`) and the reason it gets its own
+  script is not the typing - it is the two ways those three commands go
+  quietly wrong. Tagging a commit GitHub does not have builds the wrong
+  code, because the runner checks the tag out from the remote, so it
+  compares HEAD against `origin/<branch>` and offers to push first. And a
+  leftover local tag from an abandoned attempt still points at whatever was
+  checked out that day: git says "already exists" and stops, which reads
+  like "already done", and pushing it anyway publishes old code under a new
+  version number. It shows which commit such a tag points at and offers to
+  move it. It also suggests the next version by reading the tags already on
+  the remote, refuses one that is published, and deletes the local tag again
+  if the push fails - which is exactly how a stale tag gets created in the
+  first place.
 - `import_studio_logs.bat` / `tools/import_notion_studio_logs.py` -
   one-off migration: reads a Notion database exported as HTML and appends
   its rows to Studio Logs. The `.bat` is the front door - double-click it,
